@@ -58,7 +58,7 @@ vector<GLfloat> to_homogenous_coord(vector<GLfloat> cartesian_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < cartesian_coords.size(); i++) {
         result.push_back(cartesian_coords[i]);
-        if (i > 0 && (i + 1) % 3 == 0) {
+        if (i % 3 == 2) {
             result.push_back(1);
         }
     }
@@ -69,10 +69,9 @@ vector<GLfloat> to_homogenous_coord(vector<GLfloat> cartesian_coords) {
 vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogenous_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < homogenous_coords.size(); i++) {
-        if (i > 0 && (i + 1) % 4 == 0) {
-            i++;
+        if (i % 4 != 3) {
+            result.push_back(homogenous_coords[i]);
         }
-        result.push_back(homogenous_coords[i]);
     }
     return result;
 }
@@ -131,7 +130,7 @@ void print_matrix(vector<GLfloat> A) {
             cout << " ]\n[ ";
         }
         cout << A[i];
-        if ((i + 1) % 4 != 0) {
+        if (i % 4 != 3) {
             cout << " ";
         }
     }
