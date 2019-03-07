@@ -239,12 +239,11 @@ void display_func() {
     
     vector<GLfloat> homogeneousPoints = to_homogenous_coord(points);
     vector<GLfloat> currPoints;
-    vector<GLfloat> rotatedPoints;
     vector<GLfloat> newPoints;
     for (int i = 0; i < homogeneousPoints.size(); i += 4) {
         currPoints = {homogeneousPoints[i], homogeneousPoints[i + 1], homogeneousPoints[i + 2], homogeneousPoints[i + 3]};
-        rotatedPoints = mat_mult(rotation_matrix_y(theta), currPoints);
-        newPoints.insert(newPoints.end(), rotatedPoints.begin(), rotatedPoints.end());
+        currPoints = mat_mult(rotation_matrix_y(theta), currPoints);
+        newPoints.insert(newPoints.end(), currPoints.begin(), currPoints.end());
     }
     newPoints = to_cartesian_coord(newPoints);
     GLfloat* vertices = vector2array(newPoints);
