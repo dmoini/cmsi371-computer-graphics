@@ -102,19 +102,23 @@ vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
 
 // Definition of a translation matrix
 vector<GLfloat> translation_matrix (float dx, float dy, float dz) {
-    vector<GLfloat> translate_mat;
-    
-    // TODO: Define translation matrix
-    
+    vector<GLfloat> translate_mat = {
+        1.0, 0.0, 0.0, dx,
+        0.0, 1.0, 0.0, dy,
+        0.0, 0.0, 1.0, dz,
+        0.0, 0.0, 0.0, 1.0
+    };
     return translate_mat;
 }
 
 // Definition of a scaling matrix
 vector<GLfloat> scaling_matrix (float sx, float sy, float sz) {
-    vector<GLfloat> scale_mat;
-    
-    // TODO: Define scaling matrix
-    
+    vector<GLfloat> scale_mat = {
+        sx, 0.0, 0.0, 0.0,
+        0.0, sy, 0.0, 0.0,
+        0.0, 0.0, sz, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    };
     return scale_mat;
 }
 
@@ -172,13 +176,26 @@ vector<GLfloat> mat_mult(vector<GLfloat> A, vector<GLfloat> B) {
     return result;
 }
 
+// Converts vector<vector<GLfloat>> to vector<GLfloat>
+vector<GLfloat> squishVector(vector<vector<GLfloat>> v) {
+    vector<GLfloat> result;
+    for (int i = 0; i < v.size(); i++) {
+        result.insert(result.end(), v[i].begin(), v[i].end());
+    }
+    return result;
+}
+
 // Builds a unit cube centered at the origin
 vector<GLfloat> build_cube() {
-    vector<GLfloat> result;
+    vector<GLfloat> front = mat_mult(translation_matrix(0, 0, 0.5), init_plane());
+    vector<GLfloat> back = mat_mult(translation_matrix(0, 0, -0.5), mat_mult(rotation_matrix_y(180), init_plane()));
+    vector<GLfloat> left = mat_mult(translation_matrix(0.5, 0, 0), mat_mult(rotation_matrix_y(-90), init_plane()));
+    vector<GLfloat> right = mat_mult(translation_matrix(-0.5, 0, 0), mat_mult(rotation_matrix_y(90), init_plane()));
+    vector<GLfloat> top = mat_mult(translation_matrix(0, 0.5, 0), mat_mult(rotation_matrix_x(-90), init_plane()));
+    vector<GLfloat> bottom = mat_mult(translation_matrix(0, -0.5, 0), mat_mult(rotation_matrix_x(90), init_plane()));
     
-    // TODO: Creates a unit cube by transforming a set of planes
-    
-    return result;
+    vector<vector<GLfloat>> scene = {front, back, left, right, top, bottom};
+    return squishVector(scene);
 }
 
 void print_matrix(vector<GLfloat> A) {
@@ -280,32 +297,28 @@ void idle_func() {
 }
 
 int main (int argc, char **argv) {
-    vector<GLfloat> A = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    vector<GLfloat> B = mat_mult(A, A);
-    print_matrix(B);
-    
-//    // Initialize GLUT
-//    glutInit(&argc, argv);
-//    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-//    glutInitWindowSize(800, 600);
-//    // Create a window with rendering context and everything else we need
-//    glutCreateWindow("Assignment 3");
-//
-//    setup();
-//    init_camera();
-//    // Setting global variables SCENE and COLOR with actual values
-//    SCENE = init_scene();
-//    COLOR = init_color(SCENE);
-//
-//    // Set up our display function
-//    glutDisplayFunc(display_func);
-//    glutIdleFunc(idle_func);
-//    // Render our world
-//    glutMainLoop();
-//
-//    // Remember to call "delete" on your dynmically allocated arrays
-//    // such that you don't suffer from memory leaks. e.g.
-//    // delete arr;
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    // Create a window with rendering context and everything else we need
+    glutCreateWindow("Assignment 3");
+
+    setup();
+    init_camera();
+    // Setting global variables SCENE and COLOR with actual values
+    SCENE = init_scene();
+    COLOR = init_color(SCENE);
+
+    // Set up our display function
+    glutDisplayFunc(display_func);
+    glutIdleFunc(idle_func);
+    // Render our world
+    glutMainLoop();
+
+    // Remember to call "delete" on your dynmically allocated arrays
+    // such that you don't suffer from memory leaks. e.g.
+    // delete arr;
     
     return 0;
 }
