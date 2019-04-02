@@ -63,7 +63,7 @@ vector<GLfloat> init_plane() {
 
 // Converts degrees to radians for rotation
 float deg2rad(float d) {
-    return (d*M_PI) / 180.0;
+    return (d * M_PI) / 180.0;
 }
 
 // Converts a vector to an array
@@ -80,7 +80,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < cartesian_coords.size(); i++) {
         result.push_back(cartesian_coords[i]);
-        if ((i+1) % 3 == 0) {
+        if ((i + 1) % 3 == 0) {
             result.push_back(1.0);
         }
     }
@@ -91,7 +91,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
 vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < homogeneous_coords.size(); i++) {
-        if ((i+1) % 4 == 0) {
+        if ((i + 1) % 4 == 0) {
             continue;
         } else {
             result.push_back(homogeneous_coords[i]);
@@ -166,6 +166,7 @@ vector<GLfloat> rotation_matrix_z (float theta) {
 //      [B1 B2 B3 B4]
 //      ...
 //      [Z1 Z2 Z3 Z4]
+// QUESTION: are matrices in cartesian or homogeneous form?
 vector<GLfloat> mat_mult(vector<GLfloat> A, vector<GLfloat> B) {
     vector<GLfloat> result;
     for (int a = 0; a < A.size(); a += 4) {
@@ -289,10 +290,13 @@ void display_func() {
     
     glFlush();            //Finish rendering
     glutSwapBuffers();
+    
+    free(scene_vertices);
+    free(color_vertices);
 }
 
 void idle_func() {
-    THETA = THETA + 0.3;
+    THETA += 0.3;
     display_func();
 }
 
