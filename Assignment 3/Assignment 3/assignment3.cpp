@@ -1,7 +1,7 @@
 /***
  Assignment-3: Geometric Modeling of a Scene
  
- Name: Wong, Alex (Please write your name in Last Name, First Name format)
+ Name: Moini, Donovan
  
  Collaborators: Doe, John; Doe, Jane
  ** Note: although the assignment should be completed individually
@@ -50,6 +50,11 @@ vector<GLfloat> COLOR;
  *                                                *
  *************************************************/
 
+// Converts degrees to radians for rotation
+float deg2rad(float d) {
+    return (d * M_PI) / 180.0;
+}
+
 // Initializes a square plane of unit lengths
 vector<GLfloat> init_plane() {
     vector<GLfloat> vertices = {
@@ -59,11 +64,6 @@ vector<GLfloat> init_plane() {
         +0.5,   -0.5,   +0.0
     };
     return vertices;
-}
-
-// Converts degrees to radians for rotation
-float deg2rad(float d) {
-    return (d * M_PI) / 180.0;
 }
 
 // Converts a vector to an array
@@ -166,19 +166,26 @@ vector<GLfloat> rotation_matrix_z (float theta) {
 //      [B1 B2 B3 B4]
 //      ...
 //      [Z1 Z2 Z3 Z4]
-// QUESTION: are matrices in cartesian or homogeneous form?
 vector<GLfloat> mat_mult(vector<GLfloat> A, vector<GLfloat> B) {
     vector<GLfloat> result;
-    for (int a = 0; a < A.size(); a += 4) {
-        for (int b = 0; b < B.size(); b += 4) {
-            result.push_back(A[a] * B[b] + A[a + 1] * B[b + 1] + A[a + 2] * B[b + 2] + A[a + 3] * B[b + 3]);
+    for (int b = 0; b < B.size() / 4; b++) {
+        for (int a = 0; a < 4; a++) {
+            float res = 0;
+            for (int k = 0; k < 4; k++) {
+                float product = A[a * 4 + k] * B[b * 4 + k];
+                if (-EPSILON < product and product < EPSILON) {
+                    product = 0;
+                }
+                res += product;
+            }
+            result.push_back(res);
         }
     }
     return result;
 }
 
 // Converts vector<vector<GLfloat>> to vector<GLfloat>
-vector<GLfloat> squishVector(vector<vector<GLfloat>> v) {
+vector<GLfloat> squish_vector(vector<vector<GLfloat>> v) {
     vector<GLfloat> result;
     for (int i = 0; i < v.size(); i++) {
         result.insert(result.end(), v[i].begin(), v[i].end());
@@ -188,15 +195,16 @@ vector<GLfloat> squishVector(vector<vector<GLfloat>> v) {
 
 // Builds a unit cube centered at the origin
 vector<GLfloat> build_cube() {
-    vector<GLfloat> front = mat_mult(translation_matrix(0, 0, 0.5), init_plane());
-    vector<GLfloat> back = mat_mult(translation_matrix(0, 0, -0.5), mat_mult(rotation_matrix_y(180), init_plane()));
-    vector<GLfloat> left = mat_mult(translation_matrix(0.5, 0, 0), mat_mult(rotation_matrix_y(-90), init_plane()));
-    vector<GLfloat> right = mat_mult(translation_matrix(-0.5, 0, 0), mat_mult(rotation_matrix_y(90), init_plane()));
-    vector<GLfloat> top = mat_mult(translation_matrix(0, 0.5, 0), mat_mult(rotation_matrix_x(-90), init_plane()));
-    vector<GLfloat> bottom = mat_mult(translation_matrix(0, -0.5, 0), mat_mult(rotation_matrix_x(90), init_plane()));
+    vector<GLfloat> a0 = to_homogeneous_coord(init_plane());
+    vector<GLfloat> front = mat_mult(translation_matrix(0, 0, 0.5), a0);
+    vector<GLfloat> back = mat_mult(translation_matrix(0, 0, -0.5), mat_mult(rotation_matrix_y(180), a0));
+    vector<GLfloat> left = mat_mult(translation_matrix(0.5, 0, 0), mat_mult(rotation_matrix_y(-90), a0));
+    vector<GLfloat> right = mat_mult(translation_matrix(-0.5, 0, 0), mat_mult(rotation_matrix_y(90), a0));
+    vector<GLfloat> top = mat_mult(translation_matrix(0, 0.5, 0), mat_mult(rotation_matrix_x(-90), a0));
+    vector<GLfloat> bottom = mat_mult(translation_matrix(0, -0.5, 0), mat_mult(rotation_matrix_x(90), a0));
     
     vector<vector<GLfloat>> scene = {front, back, left, right, top, bottom};
-    return squishVector(scene);
+    return squish_vector(scene);
 }
 
 void print_matrix(vector<GLfloat> A) {
@@ -242,17 +250,17 @@ void init_camera() {
     // Camera parameters
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    
-    // TODO: Setup your camera here
+    // Define a 50 degree field of view, 1:1 aspect ratio, near and far planes at 3 and 7
+    gluPerspective(50.0, 1.0, 2.0, 10.0);
+    // Position camera at (2, 3, 5), attention at (0, 0, 0), up at (0, 1, 0)
+    gluLookAt(2.0, 6.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     
 }
 
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
-    vector<GLfloat> scene;
-    
     // TODO: Build your scene here
-    
+    vector<GLfloat> scene = {build_cube()};
     return scene;
 }
 
@@ -268,7 +276,9 @@ vector<GLfloat> init_color(vector<GLfloat> scene) {
 void display_func() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // TODO: Rotate the scene using the scene vector
+    SCENE = init_scene();
+    SCENE = mat_mult(rotation_matrix_y(THETA), SCENE);
+    SCENE = to_cartesian_coord(SCENE);
     
     
     GLfloat* scene_vertices = vector2array(SCENE);
