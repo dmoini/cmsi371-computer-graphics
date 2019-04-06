@@ -40,6 +40,7 @@ float THETA = 0.0;
 // Vector placeholders for the scene and color array
 vector<GLfloat> SCENE;
 vector<GLfloat> COLOR;
+int PLANES;
 
 /**************************************************
  *  Rectangular Prisms via Hierarchical Modeling  *
@@ -257,10 +258,26 @@ void init_camera() {
     
 }
 
+vector<GLfloat> build_table() {
+    vector<GLfloat> leg1 = mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube());
+    vector<GLfloat> leg2 = mat_mult(translation_matrix(1, 0, 0), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg3 = mat_mult(translation_matrix(1, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg4 = mat_mult(translation_matrix(0, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg5 = mat_mult(translation_matrix(-1, 0, 0), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg6 = mat_mult(translation_matrix(-1, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg7 = mat_mult(translation_matrix(0, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg8 = mat_mult(translation_matrix(1, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<GLfloat> leg9 = mat_mult(translation_matrix(-1, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
+    vector<vector<GLfloat>> result = {leg1, leg2, leg3, leg4, leg5, leg6, leg7, leg8, leg9};
+    return squish_vector(result);
+}
+
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
     // TODO: Build your scene here
-    vector<GLfloat> scene = {build_cube()};
+    vector<vector<GLfloat>> unsquished_scene = {build_table()};
+    vector<GLfloat> scene = squish_vector(unsquished_scene);
+    PLANES = (int)scene.size() / 4;
     return scene;
 }
 
@@ -296,7 +313,7 @@ void display_func() {
                    color_vertices);     // Pointer to memory location to read from
     
     // Draw quad point planes: each 4 vertices
-    glDrawArrays(GL_QUADS, 0, 4 * 6);
+    glDrawArrays(GL_QUADS, 0, PLANES);
     
     glFlush();            //Finish rendering
     glutSwapBuffers();
