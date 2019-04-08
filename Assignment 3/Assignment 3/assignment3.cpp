@@ -3,13 +3,13 @@
  
  Name: Moini, Donovan
  
- Collaborators: Doe, John; Doe, Jane
- ** Note: although the assignment should be completed individually
- you may speak with classmates on high level algorithmic concepts. Please
- list their names in this section
+ Collaborators: Lizarda, Ian
  
  Project Summary: A short paragraph (3-4 sentences) describing the work you
  did for the project.
+ In this assignment, I built a scene of a room using hierarchical compositional models. To build every object in the scene, I began
+ by building an origin-centered unit cube for each object. Following this, I scaled, rotated, and translated each cube
+ appropriately to create each object and create a full room.
  ***/
 
 
@@ -342,7 +342,6 @@ void display_func() {
     SCENE = mat_mult(rotation_matrix_y(THETA), SCENE);
     SCENE = to_cartesian_coord(SCENE);
     
-    
     GLfloat* scene_vertices = vector2array(SCENE);
     GLfloat* color_vertices = vector2array(COLOR);
     // Pass the scene vertex pointer
@@ -363,8 +362,8 @@ void display_func() {
     glFlush();            //Finish rendering
     glutSwapBuffers();
     
-    free(scene_vertices);
-    free(color_vertices);
+    delete scene_vertices;
+    delete color_vertices;
 }
 
 void idle_func() {
