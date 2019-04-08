@@ -258,24 +258,69 @@ void init_camera() {
     
 }
 
-vector<GLfloat> build_table() {
-    vector<GLfloat> leg1 = mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube());
-    vector<GLfloat> leg2 = mat_mult(translation_matrix(1, 0, 0), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg3 = mat_mult(translation_matrix(1, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg4 = mat_mult(translation_matrix(0, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg5 = mat_mult(translation_matrix(-1, 0, 0), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg6 = mat_mult(translation_matrix(-1, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg7 = mat_mult(translation_matrix(0, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg8 = mat_mult(translation_matrix(1, 0, -1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<GLfloat> leg9 = mat_mult(translation_matrix(-1, 0, 1), mat_mult(scaling_matrix(0.2, 2, 0.2), build_cube()));
-    vector<vector<GLfloat>> result = {leg1, leg2, leg3, leg4, leg5, leg6, leg7, leg8, leg9};
+vector<GLfloat> build_rug() {
+    vector<GLfloat> rug = mat_mult(scaling_matrix(3.5, 0.1, 2), build_cube());
+    vector<vector<GLfloat>> result = {rug};
     return squish_vector(result);
+}
+
+vector<GLfloat> build_bed() {
+    vector<GLfloat> bed_body = mat_mult(translation_matrix(0, 0.5, -0.9), mat_mult(scaling_matrix(1.5, 1, 2), build_cube()));
+    vector<GLfloat> bed_frame = mat_mult(translation_matrix(0, 1, -2), mat_mult(scaling_matrix(1.5, 2, 0.2), build_cube()));
+    vector<vector<GLfloat>> result = {bed_body, bed_frame};
+    return squish_vector(result);
+}
+
+vector<GLfloat> build_bed_pillows() {
+    vector<GLfloat> left_pillow = mat_mult(translation_matrix(0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())));
+    vector<GLfloat> right_pillow = mat_mult(translation_matrix(-0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())));
+    vector<vector<GLfloat>> result = {left_pillow, right_pillow};
+    return squish_vector(result);
+}
+
+vector<GLfloat> build_floor_pillow() {
+    vector<GLfloat> floor_pillow = mat_mult(translation_matrix(1.1, 0.05, 0.3), mat_mult(rotation_matrix_y(20), mat_mult(scaling_matrix(0.5, 0.1, 0.5), build_cube())));
+    vector<vector<GLfloat>> result = {floor_pillow};
+    return squish_vector(result);
+}
+
+vector<GLfloat> build_cabinet() {
+    vector<GLfloat> cabinet = mat_mult(translation_matrix(-1.6, 0.875, -1.4), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.5, 1.4, 1) , build_cube())));
+    vector<vector<GLfloat>> result = {cabinet};
+    return squish_vector(result);
+}
+
+vector<GLfloat> build_cabinet_plant() {
+    float rotation_angle = 12.5;
+    vector<GLfloat> plant_vase = mat_mult(translation_matrix(-1.35, 1.8, -1.5), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()));
+    vector<GLfloat> plant_stem1 = mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))));
+    vector<GLfloat> plant_stem2 = mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<GLfloat> plant_stem3 = mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<GLfloat> plant_stem4 = mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
+    return squish_vector(plant);
+}
+
+vector<GLfloat> build_floor_pile() {
+    vector<GLfloat> floor_pile = mat_mult(translation_matrix(1.2, 0.15, -1.4), mat_mult(scaling_matrix(0.5, 0.3, 0.5), build_cube()));
+    vector<vector<GLfloat>> result = {floor_pile};
+    return squish_vector(result);
+}
+
+vector<GLfloat> build_floor_pile_plant() {
+    float rotation_angle = 12.5;
+    vector<GLfloat> plant_vase = mat_mult(translation_matrix(1.2, 0.5, -1.4), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()));
+    vector<GLfloat> plant_stem1 = mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))));
+    vector<GLfloat> plant_stem2 = mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<GLfloat> plant_stem3 = mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<GLfloat> plant_stem4 = mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
+    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
+    return squish_vector(plant);
 }
 
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
-    // TODO: Build your scene here
-    vector<vector<GLfloat>> unsquished_scene = {build_table()};
+    vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
     vector<GLfloat> scene = squish_vector(unsquished_scene);
     PLANES = (int)scene.size() / 4;
     return scene;
