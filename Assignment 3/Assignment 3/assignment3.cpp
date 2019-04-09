@@ -361,9 +361,6 @@ void display_func() {
     
     glFlush();            //Finish rendering
     glutSwapBuffers();
-    
-    delete scene_vertices;
-    delete color_vertices;
 }
 
 void idle_func() {
