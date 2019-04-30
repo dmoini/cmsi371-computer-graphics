@@ -100,7 +100,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < cartesian_coords.size(); i++) {
         result.push_back(cartesian_coords[i]);
-        if ((i+1) % 3 == 0) {
+        if ((i + 1) % 3 == 0) {
             result.push_back(1.0);
         }
     }
@@ -111,7 +111,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
 vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < homogeneous_coords.size(); i++) {
-        if ((i+1) % 4 == 0) {
+        if ((i + 1) % 4 == 0) {
             continue;
         } else {
             result.push_back(homogeneous_coords[i]);
@@ -123,10 +123,10 @@ vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
 // Definition of a translation matrix
 vector<GLfloat> translation_matrix (float dx, float dy, float dz) {
     vector<GLfloat> translate_mat = {
-        1.0,    0.0,    0.0,    dx,
-        0.0,    1.0,    0.0,    dy,
-        0.0,    0.0,    1.0,    dz,
-        0.0,    0.0,    0.0,    1.0
+        1.0, 0.0, 0.0, dx,
+        0.0, 1.0, 0.0, dy,
+        0.0, 0.0, 1.0, dz,
+        0.0, 0.0, 0.0, 1.0
     };
     return translate_mat;
 }
@@ -134,22 +134,22 @@ vector<GLfloat> translation_matrix (float dx, float dy, float dz) {
 // Definition of a scaling matrix
 vector<GLfloat> scaling_matrix (float sx, float sy, float sz) {
     vector<GLfloat> scale_mat = {
-        sx,     0.0,    0.0,    0.0,
-        0.0,    sy,     0.0,    0.0,
-        0.0,    0.0,    sz,     0.0,
-        0.0,    0.0,    0.0,    1.0
+        sx, 0.0, 0.0, 0.0,
+        0.0, sy, 0.0, 0.0,
+        0.0, 0.0, sz, 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return scale_mat;
 }
 
 // Definition of a rotation matrix about the x-axis theta degrees
 vector<GLfloat> rotation_matrix_x (float theta) {
-    theta = deg2rad(theta);
+    float radian = deg2rad(theta);
     vector<GLfloat> rotate_mat_x = {
-        1.0,    0.0,                    0.0,                       0.0,
-        0.0,    (float)(cos(theta)),    (float)(-sin(theta)),      0.0,
-        0.0,    (float)(sin(theta)),    (float)(cos(theta)),       0.0,
-        0.0,    0.0,                    0.0,                       1.0
+        1.0, 0.0, 0.0, 0.0,
+        0.0, cos(radian), -sin(radian), 0.0,
+        0.0, sin(radian), cos(radian), 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_x;
 }
@@ -157,12 +157,12 @@ vector<GLfloat> rotation_matrix_x (float theta) {
 
 // Definition of a rotation matrix about the y-axis by theta degrees
 vector<GLfloat> rotation_matrix_y (float theta) {
-    theta = deg2rad(theta);
+    float radian = deg2rad(theta);
     vector<GLfloat> rotate_mat_y = {
-        (float)cos(theta),     0.0,     (float)sin(theta),    0.0,
-        0.0,                   1.0,     0.0,                  0.0,
-        (float)-sin(theta),    0.0,     (float)cos(theta),    0.0,
-        0.0,                   0.0,     0.0,                  1.0
+        cos(radian), 0.0, sin(radian), 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        -sin(radian), 0.0, cos(radian), 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_y;
 }
@@ -170,12 +170,12 @@ vector<GLfloat> rotation_matrix_y (float theta) {
 
 // Definition of a rotation matrix about the z-axis by theta degrees
 vector<GLfloat> rotation_matrix_z (float theta) {
-    theta = deg2rad(theta);
+    float radian = deg2rad(theta);
     vector<GLfloat> rotate_mat_z = {
-        (float)cos(theta),  (float)-sin(theta), 0.0,    0.0,
-        (float)sin(theta),  (float)cos(theta),  0.0,    0.0,
-        0.0,                0.0,                1.0,    0.0,
-        0.0,                0.0,                0.0,    1.0
+        cos(radian), -sin(radian), 0.0, 0.0,
+        sin(radian), cos(radian), 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_z;
 }
