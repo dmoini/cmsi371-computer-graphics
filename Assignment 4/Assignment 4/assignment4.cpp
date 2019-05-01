@@ -246,13 +246,24 @@ vector<GLfloat> cross_product(vector<GLfloat> A, vector<GLfloat> B) {
 // Generates the normals to each surface (plane)
 vector<GLfloat> generate_normals(vector<GLfloat> points) {
     vector<GLfloat> normals;
-    
-    // TODO: generates the normals to each surface
-    
-    // Note: each plane (quad) contains 4 points, choose the points
-    // to generate your vectors such that the normals (given by the
-    // cross product, point to the correct direction
-    
+    for (int i = 0; i < points.size(); i += 16) {
+        vector<GLfloat> a, b, c;
+        
+        // a = p0 - p3
+        a.push_back(points[i] - points[i + 12]);
+        a.push_back(points[i + 1] - points[i + 13]);
+        a.push_back(points[i + 2] - points[i + 14]);
+        
+        // b = p2 - p3
+        a.push_back(points[i + 8] - points[i + 12]);
+        a.push_back(points[i + 9] - points[i + 13]);
+        a.push_back(points[i + 10] - points[i + 14]);
+        
+        c = cross_product(a, b);
+        for (int i = 0; i < 4; i++) {
+            normals.insert(normals.end(), c.begin(), c.end());
+        }
+    }
     return normals;
 }
 
@@ -485,21 +496,13 @@ vector<GLfloat> color_floor_plant() {
 vector<GLfloat> init_scene() {
     vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
     vector<GLfloat> scene = squish_vector(unsquished_scene);
-//    vector<GLfloat> scene = build_cube();
     return scene;
 }
 
 // Construct the color mapping of the scene
 vector<GLfloat> init_color() {
     vector<vector<GLfloat>> unsquished_colors = {color_rug(), color_bed(), color_bed_pillows(), color_floor_pillow(), color_cabinet(), color_cabinet_plant(), color_floor_pile(), color_floor_plant()};
-//    vector<GLfloat> cube_colors = init_base_color(1, 0, 0);
-//    for (int i = 0; i < 6; i++) {
-//        colors.insert(colors.end(), cube_colors.begin(), cube_colors.end());
-//    }
     vector<GLfloat> colors = squish_vector(unsquished_colors);
-    
-    // TODO: Construct the base colors of the scene
-
     return colors;
 }
 
@@ -507,18 +510,14 @@ vector<GLfloat> init_color() {
 void display_func() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // TODO: Initialize your scene at every iteration
+    // Initialize your scene at every iteration
     SCENE.set_points(init_scene());
     SCENE.set_colors(init_color());
     SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
     // TODO: Apply shading to the scene
     
     
-    // TODO: Rotate the scene using the rotation matrix
-//    SCENE.set_points(to_homogeneous_coord(SCENE.get_points()));
-//    SCENE.set_points(mat_mult(rotation_matrix_y(THETA), SCENE.get_points()));
-//    SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
-    
+    // Rotate the scene using the rotation matrix
     SCENE.set_points(to_cartesian_coord(mat_mult(rotation_matrix_y(THETA), to_homogeneous_coord(SCENE.get_points()))));
     
     GLfloat* scene_vertices = vector2array(SCENE.get_points());
