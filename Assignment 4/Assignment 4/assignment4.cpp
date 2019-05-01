@@ -83,7 +83,7 @@ vector<GLfloat> init_plane() {
 
 // Converts degrees to radians for rotation
 float deg2rad(float d) {
-    return (d*M_PI) / 180.0;
+    return (d * M_PI) / 180.0;
 }
 
 // Converts a vector to an array
@@ -144,11 +144,12 @@ vector<GLfloat> scaling_matrix (float sx, float sy, float sz) {
 
 // Definition of a rotation matrix about the x-axis theta degrees
 vector<GLfloat> rotation_matrix_x (float theta) {
+    float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_x = {
-        1.0,    0.0,                    0.0,                       0.0,
-        0.0,    (float)(cos(theta)),    (float)(-sin(theta)),      0.0,
-        0.0,    (float)(sin(theta)),    (float)(cos(theta)),       0.0,
-        0.0,    0.0,                    0.0,                       1.0
+        1.0, 0.0, 0.0, 0.0,
+        0.0, (float)(cos(radians)), (float)(-sin(radians)), 0.0,
+        0.0, (float)(sin(radians)), (float)(cos(radians)), 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_x;
 }
@@ -156,11 +157,12 @@ vector<GLfloat> rotation_matrix_x (float theta) {
 
 // Definition of a rotation matrix about the y-axis by theta degrees
 vector<GLfloat> rotation_matrix_y (float theta) {
+    float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_y = {
-        (float)cos(theta),     0.0,     (float)sin(theta),    0.0,
-        0.0,                   1.0,     0.0,                  0.0,
-        (float)-sin(theta),    0.0,     (float)cos(theta),    0.0,
-        0.0,                   0.0,     0.0,                  1.0
+        (float)cos(radians), 0.0, (float)sin(radians), 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        (float)-sin(radians), 0.0, (float)cos(radians), 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_y;
 }
@@ -168,11 +170,12 @@ vector<GLfloat> rotation_matrix_y (float theta) {
 
 // Definition of a rotation matrix about the z-axis by theta degrees
 vector<GLfloat> rotation_matrix_z (float theta) {
+    float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_z = {
-        (float)cos(theta),  (float)-sin(theta), 0.0,    0.0,
-        (float)sin(theta),  (float)cos(theta),  0.0,    0.0,
-        0.0,                0.0,                1.0,    0.0,
-        0.0,                0.0,                0.0,    1.0
+        (float)cos(radians), (float)-sin(radians), 0.0, 0.0,
+        (float)sin(radians), (float)cos(radians), 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_z;
 }
@@ -208,27 +211,17 @@ vector<GLfloat> squish_vector(vector<vector<GLfloat>> v) {
 
 // Builds a unit cube centered at the origin
 vector<GLfloat> build_cube() {
-    vector<GLfloat> result;
-    // Primitive plane
     vector<GLfloat> a0 = to_homogeneous_coord(init_plane());
-    // Construct 6 planes of the cube
-    vector<GLfloat> a1 = mat_mult(translation_matrix(0.0,  0.0,  0.5), a0);
-    vector<GLfloat> a2 = mat_mult(translation_matrix(0.0,  0.0, -0.5), mat_mult(rotation_matrix_y(deg2rad(180)), a0));
-    vector<GLfloat> a3 = mat_mult(translation_matrix(-0.5, 0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(-90)), a0));
-    vector<GLfloat> a4 = mat_mult(translation_matrix(0.5,  0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(90)), a0));
-    vector<GLfloat> a5 = mat_mult(translation_matrix(0.0,  0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(-90)), a0));
-    vector<GLfloat> a6 = mat_mult(translation_matrix(0.0, -0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(90)), a0));
+    vector<GLfloat> front = mat_mult(translation_matrix(0, 0, 0.5), a0);
+    vector<GLfloat> back = mat_mult(translation_matrix(0, 0, -0.5), mat_mult(rotation_matrix_y(180), a0));
+    vector<GLfloat> left = mat_mult(translation_matrix(0.5, 0, 0), mat_mult(rotation_matrix_y(-90), a0));
+    vector<GLfloat> right = mat_mult(translation_matrix(-0.5, 0, 0), mat_mult(rotation_matrix_y(90), a0));
+    vector<GLfloat> top = mat_mult(translation_matrix(0, 0.5, 0), mat_mult(rotation_matrix_x(-90), a0));
+    vector<GLfloat> bottom = mat_mult(translation_matrix(0, -0.5, 0), mat_mult(rotation_matrix_x(90), a0));
     
-    result.insert(std::end(result), std::begin(a1), std::end(a1));
-    result.insert(std::end(result), std::begin(a2), std::end(a2));
-    result.insert(std::end(result), std::begin(a3), std::end(a3));
-    result.insert(std::end(result), std::begin(a4), std::end(a4));
-    result.insert(std::end(result), std::begin(a5), std::end(a5));
-    result.insert(std::end(result), std::begin(a6), std::end(a6));
-    
-    return result;
+    vector<vector<GLfloat>> scene = {front, back, left, right, top, bottom};
+    return squish_vector(scene);
 }
-
 
 
 /**************************************************
@@ -364,7 +357,6 @@ void init_camera() {
     gluPerspective(50.0, 1.0, 2.0, 10.0);
     // Position camera at (2, 3, 5), attention at (0, 0, 0), up at (0, 1, 0)
     gluLookAt(2.0, 6.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-    
 }
 
 vector<GLfloat> build_rug() {
@@ -429,23 +421,19 @@ vector<GLfloat> build_floor_pile_plant() {
 
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
-    vector<GLfloat> scene;
-    
-    // TODO: Build your scene here
-//    vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
-//    vector<GLfloat> scene = squish_vector(unsquished_scene);
+    vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
+    vector<GLfloat> scene = squish_vector(unsquished_scene);
 //    PLANES = (int)scene.size() / 4;
-//    return scene;
-    
     return scene;
 }
+
 
 // Construct the color mapping of the scene
 vector<GLfloat> init_color() {
     vector<GLfloat> colors;
     
     // TODO: Construct the base colors of the scene
-    
+
     return colors;
 }
 
@@ -454,13 +442,18 @@ void display_func() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // TODO: Initialize your scene at every iteration
-    
-    
+    SCENE.set_points(init_scene());
+//    SCENE.set_colors(init_color());
+    SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
     // TODO: Apply shading to the scene
     
     
     // TODO: Rotate the scene using the rotation matrix
+//    SCENE.set_points(to_homogeneous_coord(SCENE.get_points()));
+//    SCENE.set_points(mat_mult(rotation_matrix_y(THETA), SCENE.get_points()));
+//    SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
     
+    SCENE.set_points(to_cartesian_coord(mat_mult(rotation_matrix_y(THETA), to_homogeneous_coord(SCENE.get_points()))));
     
     GLfloat* scene_vertices = vector2array(SCENE.get_points());
     GLfloat* color_vertices = vector2array(SCENE.get_colors());

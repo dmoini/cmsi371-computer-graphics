@@ -88,7 +88,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
     return result;
 }
 
-// Converts Cartesian coordinates to homogeneous coordinates
+// Converts Cartesian homogeneous to cartesian coordinates
 vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < homogeneous_coords.size(); i++) {
@@ -255,7 +255,6 @@ void init_camera() {
     gluPerspective(50.0, 1.0, 2.0, 10.0);
     // Position camera at (2, 3, 5), attention at (0, 0, 0), up at (0, 1, 0)
     gluLookAt(2.0, 6.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-    
 }
 
 vector<GLfloat> build_rug() {
