@@ -3,7 +3,7 @@
  
  Name: Moini, Donovan
  
- Collaborators: Doe, John; Doe, Jane
+ Collaborators: Zafiris, Serena
  ** Note: although the assignment should be completed individually
  you may speak with classmates on high level algorithmic concepts. Please
  list their names in this section
@@ -323,6 +323,10 @@ void print_matrix(vector<GLfloat> A) {
     cout << " ]" << "\n";
 }
 
+vector<GLfloat> timesSix(vector<GLfloat> v) {
+    return squish_vector({v, v, v, v, v, v});
+}
+
 
 /**************************************************
  *            Camera and World Modeling           *
@@ -365,9 +369,22 @@ vector<GLfloat> build_rug() {
     return squish_vector(result);
 }
 
+vector<GLfloat> color_rug() {
+    vector<GLfloat> rug = timesSix(init_base_color(0.443, 0.933, 0.721));
+    vector<vector<GLfloat>> result = {rug};
+    return squish_vector(result);
+}
+
 vector<GLfloat> build_bed() {
     vector<GLfloat> bed_body = mat_mult(translation_matrix(0, 0.5, -0.9), mat_mult(scaling_matrix(1.5, 1, 2), build_cube()));
     vector<GLfloat> bed_frame = mat_mult(translation_matrix(0, 1, -2), mat_mult(scaling_matrix(1.5, 2, 0.2), build_cube()));
+    vector<vector<GLfloat>> result = {bed_body, bed_frame};
+    return squish_vector(result);
+}
+
+vector<GLfloat> color_bed() {
+    vector<GLfloat> bed_body = timesSix(init_base_color(0.149, 0.149, 0.149));
+    vector<GLfloat> bed_frame = timesSix(init_base_color(0.149, 0.149, 0.149));
     vector<vector<GLfloat>> result = {bed_body, bed_frame};
     return squish_vector(result);
 }
@@ -379,14 +396,33 @@ vector<GLfloat> build_bed_pillows() {
     return squish_vector(result);
 }
 
+vector<GLfloat> color_bed_pillows() {
+    vector<GLfloat> left_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
+    vector<GLfloat> right_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
+    vector<vector<GLfloat>> result = {left_pillow, right_pillow};
+    return squish_vector(result);
+}
+
 vector<GLfloat> build_floor_pillow() {
     vector<GLfloat> floor_pillow = mat_mult(translation_matrix(1.1, 0.05, 0.3), mat_mult(rotation_matrix_y(20), mat_mult(scaling_matrix(0.5, 0.1, 0.5), build_cube())));
     vector<vector<GLfloat>> result = {floor_pillow};
     return squish_vector(result);
 }
 
+vector<GLfloat> color_floor_pillow() {
+    vector<GLfloat> floor_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
+    vector<vector<GLfloat>> result = {floor_pillow};
+    return squish_vector(result);
+}
+
 vector<GLfloat> build_cabinet() {
     vector<GLfloat> cabinet = mat_mult(translation_matrix(-1.6, 0.875, -1.4), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.5, 1.4, 1) , build_cube())));
+    vector<vector<GLfloat>> result = {cabinet};
+    return squish_vector(result);
+}
+
+vector<GLfloat> color_cabinet() {
+    vector<GLfloat> cabinet = timesSix(init_base_color(0.349, 0.141, 0.109));
     vector<vector<GLfloat>> result = {cabinet};
     return squish_vector(result);
 }
@@ -402,8 +438,24 @@ vector<GLfloat> build_cabinet_plant() {
     return squish_vector(plant);
 }
 
+vector<GLfloat> color_cabinet_plant() {
+    vector<GLfloat> plant_vase = timesSix(init_base_color(0.286, 0.184, 0.031));
+    vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem4 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
+    return squish_vector(plant);
+}
+
 vector<GLfloat> build_floor_pile() {
     vector<GLfloat> floor_pile = mat_mult(translation_matrix(1.2, 0.15, -1.4), mat_mult(scaling_matrix(0.5, 0.3, 0.5), build_cube()));
+    vector<vector<GLfloat>> result = {floor_pile};
+    return squish_vector(result);
+}
+
+vector<GLfloat> color_floor_pile() {
+    vector<GLfloat> floor_pile = timesSix(init_base_color(0.454, 0.643, 0.886));
     vector<vector<GLfloat>> result = {floor_pile};
     return squish_vector(result);
 }
@@ -419,18 +471,32 @@ vector<GLfloat> build_floor_pile_plant() {
     return squish_vector(plant);
 }
 
+vector<GLfloat> color_floor_plant() {
+    vector<GLfloat> plant_vase = timesSix(init_base_color(0.286, 0.184, 0.031));
+    vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<GLfloat> plant_stem4 = timesSix(init_base_color(0.098, 0.8, 0.211));
+    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
+    return squish_vector(plant);
+}
+
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
     vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
     vector<GLfloat> scene = squish_vector(unsquished_scene);
-//    PLANES = (int)scene.size() / 4;
+//    vector<GLfloat> scene = build_cube();
     return scene;
 }
 
-
 // Construct the color mapping of the scene
 vector<GLfloat> init_color() {
-    vector<GLfloat> colors;
+    vector<vector<GLfloat>> unsquished_colors = {color_rug(), color_bed(), color_bed_pillows(), color_floor_pillow(), color_cabinet(), color_cabinet_plant(), color_floor_pile(), color_floor_plant()};
+//    vector<GLfloat> cube_colors = init_base_color(1, 0, 0);
+//    for (int i = 0; i < 6; i++) {
+//        colors.insert(colors.end(), cube_colors.begin(), cube_colors.end());
+//    }
+    vector<GLfloat> colors = squish_vector(unsquished_colors);
     
     // TODO: Construct the base colors of the scene
 
@@ -443,7 +509,7 @@ void display_func() {
     
     // TODO: Initialize your scene at every iteration
     SCENE.set_points(init_scene());
-//    SCENE.set_colors(init_color());
+    SCENE.set_colors(init_color());
     SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
     // TODO: Apply shading to the scene
     
