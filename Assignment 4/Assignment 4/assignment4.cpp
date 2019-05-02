@@ -355,7 +355,7 @@ ObjectModel apply_shading(ObjectModel object_model, vector<GLfloat> light_source
         vector<GLfloat> normal = {normals[i], normals[i+1], normals[i+2]};
         
         vector<GLfloat> v = subtract_vectors(light_source, point);
-        vector<GLfloat> h = unit_vector(subtract_vectors(light_source,v));
+        vector<GLfloat> h = unit_vector(subtract_vectors(light_source, v));
         GLfloat n_dot_l = dot_product(normal, light_source);
         GLfloat n_dot_h = dot_product(normal, h);
         
@@ -446,23 +446,23 @@ ObjectModel build_rug() {
 }
 
 ObjectModel build_bed() {
-    ObjectModel bed_obect;
+    ObjectModel bed_object;
     
     vector<vector<GLfloat>> bed;
     bed.push_back(to_cartesian_coord(mat_mult(translation_matrix(0, 0.5, -0.9), mat_mult(scaling_matrix(1.5, 1, 2), build_cube()))));
     bed.push_back(to_cartesian_coord(mat_mult(translation_matrix(0, 1, -2), mat_mult(scaling_matrix(1.5, 2, 0.2), build_cube()))));
-    bed_obect.set_points(squish_vector(bed));
+    bed_object.set_points(squish_vector(bed));
     
-    vector<GLfloat> points = bed_obect.get_points();
+    vector<GLfloat> points = bed_object.get_points();
     vector<GLfloat> normals = generate_normals(points);
-    bed_obect.set_normals(normals);
+    bed_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
     colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
     colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
-    bed_obect.set_base_colors(squish_vector(colors));
+    bed_object.set_base_colors(squish_vector(colors));
     
-    return apply_shading(bed_obect, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
+    return apply_shading(bed_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
 ObjectModel build_bed_pillows() {
@@ -609,7 +609,7 @@ ObjectModel build_cube_object() {
     cube_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(cube_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
-    
+//    return cube_object;
 }
 
 // Construct the scene using objects built from cubes/prisms
