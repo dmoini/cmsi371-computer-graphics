@@ -38,12 +38,12 @@ float EPSILON = 0.000001;
 // theta is the angle to rotate the scene
 float THETA = 0.0;
 
-vector<GLfloat> AMB = {0.45, 0.45, 0.45};
-vector<GLfloat> DIFF = {0.15, 0.15, 0.15};
-vector<GLfloat> SPEC = {0.05, 0.05, 0.05};
-vector<GLfloat> LIGHT_SOURCE = {-3.5, -3.5, 1.5};
+vector<GLfloat> AMB = {0.7, 0.7, 0.7};
+vector<GLfloat> DIFF = {0.35, 0.35, 0.35};
+vector<GLfloat> SPEC = {0.15, 0.15, 0.15};
+vector<GLfloat> LIGHT_SOURCE = {3, 3, 2};
 vector<GLfloat> CAMERA = {2.0, 3.0, 5.0};
-double M = 1;
+GLfloat M = 1;
 
 /**************************************************
  *              Object Model Class                *
