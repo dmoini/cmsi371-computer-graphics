@@ -111,7 +111,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < cartesian_coords.size(); i++) {
         result.push_back(cartesian_coords[i]);
-        if ((i+1) % 3 == 0) {
+        if ((i + 1) % 3 == 0) {
             result.push_back(1.0);
         }
     }
@@ -122,7 +122,7 @@ vector<GLfloat> to_homogeneous_coord(vector<GLfloat> cartesian_coords) {
 vector<GLfloat> to_cartesian_coord(vector<GLfloat> homogeneous_coords) {
     vector<GLfloat> result;
     for (int i = 0; i < homogeneous_coords.size(); i++) {
-        if ((i+1) % 4 == 0) {
+        if ((i + 1) % 4 == 0) {
             continue;
         } else {
             result.push_back(homogeneous_coords[i]);
@@ -211,10 +211,10 @@ vector<GLfloat> mat_mult(vector<GLfloat> A, vector<GLfloat> B) {
 }
 
 // Converts vector<vector<GLfloat>> to vector<GLfloat>
-vector<GLfloat> squish_vector(vector<vector<GLfloat>> v) {
+vector<GLfloat> squish_vector(vector<vector<GLfloat>> V) {
     vector<GLfloat> result;
-    for (int i = 0; i < v.size(); i++) {
-        result.insert(result.end(), v[i].begin(), v[i].end());
+    for (int i = 0; i < V.size(); i++) {
+        result.insert(result.end(), V[i].begin(), V[i].end());
     }
     return result;
 }
@@ -287,10 +287,10 @@ vector<GLfloat> generate_normals(vector<GLfloat> points) {
         vector<GLfloat> p1 = {points[i+3], points[i+4], points[i+5]};
         vector<GLfloat> p3 = {points[i+9], points[i+10], points[i+11]};
         
-        vector<GLfloat> a = subtract_vectors(p1, p0);
-        vector<GLfloat> b = subtract_vectors(p3, p0);
+        vector<GLfloat> A = subtract_vectors(p1, p0);
+        vector<GLfloat> B = subtract_vectors(p3, p0);
         
-        vector<GLfloat> unit_cp = unit_vector(cross_product(a, b));
+        vector<GLfloat> unit_cp = unit_vector(cross_product(A, B));
         
         for(int j = 0; j < 4; j++){
             normals.push_back(unit_cp[0]);
@@ -363,38 +363,23 @@ ObjectModel apply_shading(ObjectModel object_model, vector<GLfloat> light_source
         GLfloat n_dot_l = dot_product(normal, light_source);
         GLfloat n_dot_h = dot_product(normal, h);
         
-        GLfloat red = base_color[0] * (amb[0] + (diff[0] * n_dot_l)) + (spec[0] * base_color[0] * pow(n_dot_h, m));
-        colors.push_back(red);
+        GLfloat I_red = base_color[0] * (amb[0] + (diff[0] * n_dot_l)) + (spec[0] * base_color[0] * pow(n_dot_h, m));
+        colors.push_back(I_red);
         
-        GLfloat green = base_color[1] * (amb[1] + (diff[1] * n_dot_l)) + (spec[1] * base_color[1] * pow(n_dot_h, m));
-        colors.push_back(green);
+        GLfloat I_green = base_color[1] * (amb[1] + (diff[1] * n_dot_l)) + (spec[1] * base_color[1] * pow(n_dot_h, m));
+        colors.push_back(I_green);
         
-        GLfloat blue = base_color[2] * (amb[2] + (diff[2] * n_dot_l)) + (spec[2] * base_color[2] * pow(n_dot_h, m));
-        colors.push_back(blue);
+        GLfloat I_blue = base_color[2] * (amb[2] + (diff[2] * n_dot_l)) + (spec[2] * base_color[2] * pow(n_dot_h, m));
+        colors.push_back(I_blue);
     }
     
     object_model.set_colors(colors);
     return object_model;
 }
 
-vector<GLfloat> timesSix(vector<GLfloat> v) {
+vector<GLfloat> times_six(vector<GLfloat> v) {
     return squish_vector({v, v, v, v, v, v});
 }
-
-void print_matrix(vector<GLfloat> A) {
-    cout << "[ ";
-    for (int i = 0; i < A.size(); i++) {
-        if (i % 4 == 0 && i != 0) {
-            cout << " ]\n[ ";
-        }
-        cout << A[i];
-        if (i % 4 != 3) {
-            cout << " ";
-        }
-    }
-    cout << " ]" << "\n";
-}
-
 
 /**************************************************
  *            Camera and World Modeling           *
@@ -443,7 +428,7 @@ ObjectModel build_rug() {
     rug_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.788, 0.764, 0.745)));
+    colors.push_back(times_six(init_base_color(0.788, 0.764, 0.745)));
     rug_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(rug_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -462,8 +447,8 @@ ObjectModel build_bed() {
     bed_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
-    colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
+    colors.push_back(times_six(init_base_color(0.658, 0.462, 0.325)));
+    colors.push_back(times_six(init_base_color(0.658, 0.462, 0.325)));
     bed_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(bed_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -482,8 +467,8 @@ ObjectModel build_bed_pillows() {
     bed_pillows_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
-    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
+    colors.push_back(times_six(init_base_color(0.909, 0.898, 0.909)));
+    colors.push_back(times_six(init_base_color(0.909, 0.898, 0.909)));
     bed_pillows_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(bed_pillows_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -501,7 +486,7 @@ ObjectModel build_floor_pillow() {
     floor_pillow_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
+    colors.push_back(times_six(init_base_color(0.909, 0.898, 0.909)));
     floor_pillow_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(floor_pillow_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -519,7 +504,7 @@ ObjectModel build_cabinet() {
     cabinet_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.749, 0.698, 0.631)));
+    colors.push_back(times_six(init_base_color(0.749, 0.698, 0.631)));
     cabinet_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(cabinet_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -542,11 +527,11 @@ ObjectModel build_cabinet_plant() {
     cabinet_plant_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.643, 0.631, 0.662)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.643, 0.631, 0.662)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
     cabinet_plant_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(cabinet_plant_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -564,7 +549,7 @@ ObjectModel build_floor_pile() {
     floor_pile_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.549, 0.533, 0.517)));
+    colors.push_back(times_six(init_base_color(0.549, 0.533, 0.517)));
     floor_pile_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(floor_pile_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -587,11 +572,11 @@ ObjectModel build_floor_pile_plant() {
     floor_pile_plant_object.set_normals(normals);
     
     vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0.643, 0.631, 0.662)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
-    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.643, 0.631, 0.662)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(times_six(init_base_color(0.098, 0.8, 0.211)));
     floor_pile_plant_object.set_base_colors(squish_vector(colors));
     
     return apply_shading(floor_pile_plant_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
@@ -712,7 +697,7 @@ void display_func() {
 }
 
 void idle_func() {
-    THETA = THETA + 0.3;
+    THETA += 0.3;
     display_func();
 }
 
