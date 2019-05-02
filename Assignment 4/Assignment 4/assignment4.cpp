@@ -38,9 +38,13 @@ float EPSILON = 0.000001;
 // theta is the angle to rotate the scene
 float THETA = 0.0;
 
-vector<GLfloat> AMB = {0.7, 0.7, 0.7};
-vector<GLfloat> DIFF = {0.35, 0.35, 0.35};
-vector<GLfloat> SPEC = {0.15, 0.15, 0.15};
+GLfloat amb = 0.3;
+GLfloat diff = 0.15;
+GLfloat spec = 0.15;
+
+vector<GLfloat> AMB = {amb, amb, amb};
+vector<GLfloat> DIFF = {diff, diff, diff};
+vector<GLfloat> SPEC = {spec, spec, spec};
 vector<GLfloat> LIGHT_SOURCE = {3, 3, 2};
 vector<GLfloat> CAMERA = {2.0, 3.0, 5.0};
 GLfloat M = 1;
@@ -154,8 +158,8 @@ vector<GLfloat> rotation_matrix_x (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_x = {
         1.0, 0.0, 0.0, 0.0,
-        0.0, (float)(cos(radians)), (float)(-sin(radians)), 0.0,
-        0.0, (float)(sin(radians)), (float)(cos(radians)), 0.0,
+        0.0, (float)(cos(theta)), (float)(-sin(theta)), 0.0,
+        0.0, (float)(sin(theta)), (float)(cos(theta)), 0.0,
         0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_x;
@@ -166,9 +170,9 @@ vector<GLfloat> rotation_matrix_x (float theta) {
 vector<GLfloat> rotation_matrix_y (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_y = {
-        (float)cos(radians), 0.0, (float)sin(radians), 0.0,
+        (float)cos(theta), 0.0, (float)sin(theta), 0.0,
         0.0, 1.0, 0.0, 0.0,
-        (float)-sin(radians), 0.0, (float)cos(radians), 0.0,
+        (float)-sin(theta), 0.0, (float)cos(theta), 0.0,
         0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_y;
@@ -179,8 +183,8 @@ vector<GLfloat> rotation_matrix_y (float theta) {
 vector<GLfloat> rotation_matrix_z (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_z = {
-        (float)cos(radians), (float)-sin(radians), 0.0, 0.0,
-        (float)sin(radians), (float)cos(radians), 0.0, 0.0,
+        (float)cos(theta), (float)-sin(theta), 0.0, 0.0,
+        (float)sin(theta), (float)cos(theta), 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     };
@@ -424,7 +428,7 @@ void init_camera() {
     // Define a 50 degree field of view, 1:1 aspect ratio, near and far planes at 3 and 7
     gluPerspective(50.0, 1.0, 2.0, 10.0);
     // Position camera at (2, 3, 5), attention at (0, 0, 0), up at (0, 1, 0)
-    gluLookAt(2.0, 6.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(2.0, 3.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
 ObjectModel build_rug() {
@@ -527,10 +531,11 @@ ObjectModel build_cabinet_plant() {
     float rotation_angle = 12.5;
     vector<vector<GLfloat>> cabinet_plant;
     cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.35, 1.8, -1.5), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant_object.set_points(squish_vector(cabinet_plant));
     
     vector<GLfloat> points = cabinet_plant_object.get_points();
     vector<GLfloat> normals = generate_normals(points);
@@ -571,10 +576,10 @@ ObjectModel build_floor_pile_plant() {
     float rotation_angle = 12.5;
     vector<vector<GLfloat>> floor_pile_plant;
     floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.2, 0.5, -1.4), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
     floor_pile_plant_object.set_points(squish_vector(floor_pile_plant));
     
     vector<GLfloat> points = floor_pile_plant_object.get_points();
@@ -616,41 +621,41 @@ ObjectModel build_cube_object() {
 vector<GLfloat> init_scene() {
     vector<vector<GLfloat>> scene_points;
     
-//    ObjectModel rug = build_rug();
-//    vector<GLfloat> rug_points = rug.get_points();
-//    scene_points.push_back(rug_points);
-//
-//    ObjectModel bed = build_bed();
-//    vector<GLfloat> bed_points = bed.get_points();
-//    scene_points.push_back(bed_points);
-//
-//    ObjectModel bed_pillows = build_bed_pillows();
-//    vector<GLfloat> bed_pillows_points = bed_pillows.get_points();
-//    scene_points.push_back(bed_pillows_points);
-//
-//    ObjectModel floor_pillow = build_floor_pillow();
-//    vector<GLfloat> floor_pillow_points = floor_pillow.get_points();
-//    scene_points.push_back(floor_pillow_points);
-//
-//    ObjectModel cabinet = build_cabinet();
-//    vector<GLfloat> cabinet_points = cabinet.get_points();
-//    scene_points.push_back(cabinet_points);
-//
-//    ObjectModel cabinet_plant = build_cabinet_plant();
-//    vector<GLfloat> cabinet_plant_points = cabinet_plant.get_points();
-//    scene_points.push_back(cabinet_plant_points);
-//
-//    ObjectModel floor_pile = build_floor_pile();
-//    vector<GLfloat> floor_pile_points = floor_pile.get_points();
-//    scene_points.push_back(floor_pile_points);
-//
-//    ObjectModel floor_pile_plant = build_floor_pile_plant();
-//    vector<GLfloat> floor_pile_plant_points = floor_pile_plant.get_points();
-//    scene_points.push_back(floor_pile_plant_points);
+    ObjectModel rug = build_rug();
+    vector<GLfloat> rug_points = rug.get_points();
+    scene_points.push_back(rug_points);
+
+    ObjectModel bed = build_bed();
+    vector<GLfloat> bed_points = bed.get_points();
+    scene_points.push_back(bed_points);
+
+    ObjectModel bed_pillows = build_bed_pillows();
+    vector<GLfloat> bed_pillows_points = bed_pillows.get_points();
+    scene_points.push_back(bed_pillows_points);
+
+    ObjectModel floor_pillow = build_floor_pillow();
+    vector<GLfloat> floor_pillow_points = floor_pillow.get_points();
+    scene_points.push_back(floor_pillow_points);
+
+    ObjectModel cabinet = build_cabinet();
+    vector<GLfloat> cabinet_points = cabinet.get_points();
+    scene_points.push_back(cabinet_points);
+
+    ObjectModel cabinet_plant = build_cabinet_plant();
+    vector<GLfloat> cabinet_plant_points = cabinet_plant.get_points();
+    scene_points.push_back(cabinet_plant_points);
+
+    ObjectModel floor_pile = build_floor_pile();
+    vector<GLfloat> floor_pile_points = floor_pile.get_points();
+    scene_points.push_back(floor_pile_points);
+
+    ObjectModel floor_pile_plant = build_floor_pile_plant();
+    vector<GLfloat> floor_pile_plant_points = floor_pile_plant.get_points();
+    scene_points.push_back(floor_pile_plant_points);
     
-    ObjectModel cube = build_cube_object();
-    vector<GLfloat> cube_points = cube.get_points();
-    scene_points.push_back(cube_points);
+//    ObjectModel cube = build_cube_object();
+//    vector<GLfloat> cube_points = cube.get_points();
+//    scene_points.push_back(cube_points);
     
     return squish_vector(scene_points);
 }
@@ -659,41 +664,41 @@ vector<GLfloat> init_scene() {
 vector<GLfloat> init_color() {
     vector<vector<GLfloat>> scene_colors;
     
-//    ObjectModel rug = build_rug();
-//    vector<GLfloat> rug_colors = rug.get_colors();
-//    scene_colors.push_back(rug_colors);
-//
-//    ObjectModel bed = build_bed();
-//    vector<GLfloat> bed_color = bed.get_colors();
-//    scene_colors.push_back(bed_color);
-//
-//    ObjectModel bed_pillows = build_bed_pillows();
-//    vector<GLfloat> bed_pillows_colors = bed_pillows.get_colors();
-//    scene_colors.push_back(bed_pillows_colors);
-//
-//    ObjectModel floor_pillow = build_floor_pillow();
-//    vector<GLfloat> floor_pillow_colors = floor_pillow.get_colors();
-//    scene_colors.push_back(floor_pillow_colors);
-//
-//    ObjectModel cabinet = build_cabinet();
-//    vector<GLfloat> cabinet_colors = cabinet.get_colors();
-//    scene_colors.push_back(cabinet_colors);
-//
-//    ObjectModel cabinet_plant = build_cabinet_plant();
-//    vector<GLfloat> cabinet_plant_colors = cabinet_plant.get_colors();
-//    scene_colors.push_back(cabinet_plant_colors);
-//
-//    ObjectModel floor_pile = build_floor_pile();
-//    vector<GLfloat> floor_pile_colors = floor_pile.get_colors();
-//    scene_colors.push_back(floor_pile_colors);
-//
-//    ObjectModel floor_pile_plant = build_floor_pile_plant();
-//    vector<GLfloat> floor_pile_plant_colors = floor_pile_plant.get_colors();
-//    scene_colors.push_back(floor_pile_plant_colors);
+    ObjectModel rug = build_rug();
+    vector<GLfloat> rug_colors = rug.get_colors();
+    scene_colors.push_back(rug_colors);
 
-    ObjectModel cube = build_cube_object();
-    vector<GLfloat> cube_colors = cube.get_colors();
-    scene_colors.push_back(cube_colors);
+    ObjectModel bed = build_bed();
+    vector<GLfloat> bed_color = bed.get_colors();
+    scene_colors.push_back(bed_color);
+
+    ObjectModel bed_pillows = build_bed_pillows();
+    vector<GLfloat> bed_pillows_colors = bed_pillows.get_colors();
+    scene_colors.push_back(bed_pillows_colors);
+
+    ObjectModel floor_pillow = build_floor_pillow();
+    vector<GLfloat> floor_pillow_colors = floor_pillow.get_colors();
+    scene_colors.push_back(floor_pillow_colors);
+
+    ObjectModel cabinet = build_cabinet();
+    vector<GLfloat> cabinet_colors = cabinet.get_colors();
+    scene_colors.push_back(cabinet_colors);
+
+    ObjectModel cabinet_plant = build_cabinet_plant();
+    vector<GLfloat> cabinet_plant_colors = cabinet_plant.get_colors();
+    scene_colors.push_back(cabinet_plant_colors);
+
+    ObjectModel floor_pile = build_floor_pile();
+    vector<GLfloat> floor_pile_colors = floor_pile.get_colors();
+    scene_colors.push_back(floor_pile_colors);
+
+    ObjectModel floor_pile_plant = build_floor_pile_plant();
+    vector<GLfloat> floor_pile_plant_colors = floor_pile_plant.get_colors();
+    scene_colors.push_back(floor_pile_plant_colors);
+
+//    ObjectModel cube = build_cube_object();
+//    vector<GLfloat> cube_colors = cube.get_colors();
+//    scene_colors.push_back(cube_colors);
     
     return squish_vector(scene_colors);
 }
@@ -735,7 +740,7 @@ void display_func() {
 }
 
 void idle_func() {
-    THETA = THETA + 0.3;
+    THETA = THETA + 0.003;
     display_func();
 }
 
