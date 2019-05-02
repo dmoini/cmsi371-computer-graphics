@@ -597,26 +597,6 @@ ObjectModel build_floor_pile_plant() {
     return apply_shading(floor_pile_plant_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-// TODO: delete when done testing
-ObjectModel build_cube_object() {
-    ObjectModel cube_object;
-    
-    vector<vector<GLfloat>> cube;
-    cube.push_back(to_cartesian_coord(build_cube()));
-    cube_object.set_points(squish_vector(cube));
-    
-    vector<GLfloat> points = cube_object.get_points();
-    vector<GLfloat> normals = generate_normals(points);
-    cube_object.set_normals(normals);
-    
-    vector<vector<GLfloat>> colors;
-    colors.push_back(timesSix(init_base_color(0, 0.4, 0.8)));
-    cube_object.set_base_colors(squish_vector(colors));
-    
-    return apply_shading(cube_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
-//    return cube_object;
-}
-
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
     vector<vector<GLfloat>> scene_points;
@@ -652,10 +632,6 @@ vector<GLfloat> init_scene() {
     ObjectModel floor_pile_plant = build_floor_pile_plant();
     vector<GLfloat> floor_pile_plant_points = floor_pile_plant.get_points();
     scene_points.push_back(floor_pile_plant_points);
-    
-//    ObjectModel cube = build_cube_object();
-//    vector<GLfloat> cube_points = cube.get_points();
-//    scene_points.push_back(cube_points);
     
     return squish_vector(scene_points);
 }
@@ -695,10 +671,6 @@ vector<GLfloat> init_color() {
     ObjectModel floor_pile_plant = build_floor_pile_plant();
     vector<GLfloat> floor_pile_plant_colors = floor_pile_plant.get_colors();
     scene_colors.push_back(floor_pile_plant_colors);
-
-//    ObjectModel cube = build_cube_object();
-//    vector<GLfloat> cube_colors = cube.get_colors();
-//    scene_colors.push_back(cube_colors);
     
     return squish_vector(scene_colors);
 }
