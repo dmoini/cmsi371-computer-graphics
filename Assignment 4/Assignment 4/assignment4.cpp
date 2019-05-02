@@ -381,7 +381,7 @@ vector<GLfloat> build_rug() {
 }
 
 vector<GLfloat> color_rug() {
-    vector<GLfloat> rug = timesSix(init_base_color(0.443, 0.933, 0.721));
+    vector<GLfloat> rug = timesSix(init_base_color(0.788, 0.764, 0.745));
     vector<vector<GLfloat>> result = {rug};
     return squish_vector(result);
 }
@@ -394,8 +394,8 @@ vector<GLfloat> build_bed() {
 }
 
 vector<GLfloat> color_bed() {
-    vector<GLfloat> bed_body = timesSix(init_base_color(0.149, 0.149, 0.149));
-    vector<GLfloat> bed_frame = timesSix(init_base_color(0.149, 0.149, 0.149));
+    vector<GLfloat> bed_body = timesSix(init_base_color(0.658, 0.462, 0.325));
+    vector<GLfloat> bed_frame = timesSix(init_base_color(0.658, 0.462, 0.325));
     vector<vector<GLfloat>> result = {bed_body, bed_frame};
     return squish_vector(result);
 }
@@ -433,7 +433,7 @@ vector<GLfloat> build_cabinet() {
 }
 
 vector<GLfloat> color_cabinet() {
-    vector<GLfloat> cabinet = timesSix(init_base_color(0.349, 0.141, 0.109));
+    vector<GLfloat> cabinet = timesSix(init_base_color(0.749, 0.698, 0.631));
     vector<vector<GLfloat>> result = {cabinet};
     return squish_vector(result);
 }
@@ -450,7 +450,7 @@ vector<GLfloat> build_cabinet_plant() {
 }
 
 vector<GLfloat> color_cabinet_plant() {
-    vector<GLfloat> plant_vase = timesSix(init_base_color(0.286, 0.184, 0.031));
+    vector<GLfloat> plant_vase = timesSix(init_base_color(0.643, 0.631, 0.662));
     vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
     vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
     vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
@@ -466,7 +466,7 @@ vector<GLfloat> build_floor_pile() {
 }
 
 vector<GLfloat> color_floor_pile() {
-    vector<GLfloat> floor_pile = timesSix(init_base_color(0.454, 0.643, 0.886));
+    vector<GLfloat> floor_pile = timesSix(init_base_color(0.549, 0.533, 0.517));
     vector<vector<GLfloat>> result = {floor_pile};
     return squish_vector(result);
 }
@@ -483,7 +483,7 @@ vector<GLfloat> build_floor_pile_plant() {
 }
 
 vector<GLfloat> color_floor_plant() {
-    vector<GLfloat> plant_vase = timesSix(init_base_color(0.286, 0.184, 0.031));
+    vector<GLfloat> plant_vase = timesSix(init_base_color(0.643, 0.631, 0.662));
     vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
     vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
     vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
