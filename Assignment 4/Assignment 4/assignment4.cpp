@@ -8,8 +8,10 @@
  you may speak with classmates on high level algorithmic concepts. Please
  list their names in this section
  
- Project Summary: A short paragraph (3-4 sentences) describing the work you
- did for the project.
+ In this project, I began by building a cube and constructing the individual components of the scene. For each component,
+ I created a ObjectModel and added the points, normals, and base colors for each component's ObjectModel. From those
+ ObjectModels, I applied shading on them and assigned the new Ir, Ig, Ib values to each ObjectModel's colors. From each
+ components points and shaded colors, I built the scene.
  ***/
 
 
