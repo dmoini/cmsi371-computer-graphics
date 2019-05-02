@@ -38,6 +38,13 @@ float EPSILON = 0.000001;
 // theta is the angle to rotate the scene
 float THETA = 0.0;
 
+vector<GLfloat> AMB = {0.45, 0.45, 0.45};
+vector<GLfloat> DIFF = {0.15, 0.15, 0.15};
+vector<GLfloat> SPEC = {0.05, 0.05, 0.05};
+vector<GLfloat> LIGHT_SOURCE = {-3.5, -3.5, 1.5};
+vector<GLfloat> CAMERA = {2.0, 3.0, 5.0};
+double M = 1;
+
 /**************************************************
  *              Object Model Class                *
  *                                                *
@@ -183,7 +190,6 @@ vector<GLfloat> rotation_matrix_z (float theta) {
 // Perform matrix multiplication for A B
 vector<GLfloat> mat_mult(vector<GLfloat> A, vector<GLfloat> B) {
     vector<GLfloat> result;
-    
     for (int b = 0; b < B.size()/4; b++) {
         for (int a = 0; a < 4; a++) {
             float element_wise_sum = 0.0;
@@ -211,16 +217,25 @@ vector<GLfloat> squish_vector(vector<vector<GLfloat>> v) {
 
 // Builds a unit cube centered at the origin
 vector<GLfloat> build_cube() {
+    vector<GLfloat> result;
+    // Primitive plane
     vector<GLfloat> a0 = to_homogeneous_coord(init_plane());
-    vector<GLfloat> front = mat_mult(translation_matrix(0, 0, 0.5), a0);
-    vector<GLfloat> back = mat_mult(translation_matrix(0, 0, -0.5), mat_mult(rotation_matrix_y(180), a0));
-    vector<GLfloat> left = mat_mult(translation_matrix(0.5, 0, 0), mat_mult(rotation_matrix_y(-90), a0));
-    vector<GLfloat> right = mat_mult(translation_matrix(-0.5, 0, 0), mat_mult(rotation_matrix_y(90), a0));
-    vector<GLfloat> top = mat_mult(translation_matrix(0, 0.5, 0), mat_mult(rotation_matrix_x(-90), a0));
-    vector<GLfloat> bottom = mat_mult(translation_matrix(0, -0.5, 0), mat_mult(rotation_matrix_x(90), a0));
+    // Construct 6 planes of the cube
+    vector<GLfloat> a1 = mat_mult(translation_matrix(0.0,  0.0,  0.5), a0);
+    vector<GLfloat> a2 = mat_mult(translation_matrix(0.0,  0.0, -0.5), mat_mult(rotation_matrix_y(deg2rad(180)), a0));
+    vector<GLfloat> a3 = mat_mult(translation_matrix(-0.5, 0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(-90)), a0));
+    vector<GLfloat> a4 = mat_mult(translation_matrix(0.5,  0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(90)), a0));
+    vector<GLfloat> a5 = mat_mult(translation_matrix(0.0,  0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(-90)), a0));
+    vector<GLfloat> a6 = mat_mult(translation_matrix(0.0, -0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(90)), a0));
     
-    vector<vector<GLfloat>> scene = {front, back, left, right, top, bottom};
-    return squish_vector(scene);
+    result.insert(std::end(result), std::begin(a1), std::end(a1));
+    result.insert(std::end(result), std::begin(a2), std::end(a2));
+    result.insert(std::end(result), std::begin(a3), std::end(a3));
+    result.insert(std::end(result), std::begin(a4), std::end(a4));
+    result.insert(std::end(result), std::begin(a5), std::end(a5));
+    result.insert(std::end(result), std::begin(a6), std::end(a6));
+    
+    return result;
 }
 
 
@@ -235,6 +250,22 @@ vector<GLfloat> build_cube() {
  *                                                *
  *************************************************/
 
+GLfloat get_magnitude(GLfloat x, GLfloat y, GLfloat z){
+    return (GLfloat)sqrt((x * x) + (y * y) + (z * z));
+}
+
+vector<GLfloat> subtract_vectors(vector<GLfloat> A, vector<GLfloat> B){
+    vector<GLfloat> result = {A[0] - B[0], A[1] - B[1], A[2] - B[2]};
+    return result;
+}
+
+vector<GLfloat> unit_vector(vector<GLfloat> A){
+    GLfloat unit_x = A[0] / get_magnitude(A[0], A[1], A[2]);
+    GLfloat unit_y = A[1] / get_magnitude(A[0], A[1], A[2]);
+    GLfloat unit_z = A[2] / get_magnitude(A[0], A[1], A[2]);
+    return {unit_x, unit_y, unit_z};
+}
+
 // Performs the cross product between two vectors
 vector<GLfloat> cross_product(vector<GLfloat> A, vector<GLfloat> B) {
     vector<GLfloat> C = {
@@ -246,24 +277,24 @@ vector<GLfloat> cross_product(vector<GLfloat> A, vector<GLfloat> B) {
 // Generates the normals to each surface (plane)
 vector<GLfloat> generate_normals(vector<GLfloat> points) {
     vector<GLfloat> normals;
-    for (int i = 0; i < points.size(); i += 16) {
-        vector<GLfloat> a, b, c;
+    
+    for (int i = 0; i < points.size(); i += 12){
+        vector<GLfloat> p0 = {points[i], points[i+1], points[i+2]};
+        vector<GLfloat> p1 = {points[i+3], points[i+4], points[i+5]};
+        vector<GLfloat> p3 = {points[i+9], points[i+10], points[i+11]};
         
-        // a = p0 - p3
-        a.push_back(points[i] - points[i + 12]);
-        a.push_back(points[i + 1] - points[i + 13]);
-        a.push_back(points[i + 2] - points[i + 14]);
+        vector<GLfloat> a = subtract_vectors(p1, p0);
+        vector<GLfloat> b = subtract_vectors(p3, p0);
         
-        // b = p2 - p3
-        a.push_back(points[i + 8] - points[i + 12]);
-        a.push_back(points[i + 9] - points[i + 13]);
-        a.push_back(points[i + 10] - points[i + 14]);
+        vector<GLfloat> unit_cp = unit_vector(cross_product(a, b));
         
-        c = cross_product(a, b);
-        for (int i = 0; i < 4; i++) {
-            normals.insert(normals.end(), c.begin(), c.end());
+        for(int j = 0; j < 4; j++){
+            normals.push_back(unit_cp[0]);
+            normals.push_back(unit_cp[1]);
+            normals.push_back(unit_cp[2]);
         }
     }
+    
     return normals;
 }
 
@@ -314,10 +345,36 @@ ObjectModel apply_shading(ObjectModel object_model, vector<GLfloat> light_source
                           vector<GLfloat> amb, vector<GLfloat> diff, vector<GLfloat> spec, GLfloat m) {
     vector<GLfloat> colors;
     
-    // TODO: apply shading to objects using illumination formula for multiple light sources
+    vector<GLfloat> base_colors = object_model.get_base_colors();
+    vector<GLfloat> points = object_model.get_points();
+    vector<GLfloat> normals = object_model.get_normals();
+
+    for(int i = 0; i < points.size(); i += 3){
+        vector<GLfloat> point = {points[i], points[i+1], points[i+2]};
+        vector<GLfloat> base_color = {base_colors[i], base_colors[i+1], base_colors[i+2]};
+        vector<GLfloat> normal = {normals[i], normals[i+1], normals[i+2]};
+        
+        vector<GLfloat> v = subtract_vectors(light_source, point);
+        vector<GLfloat> h = unit_vector(subtract_vectors(light_source,v));
+        GLfloat n_dot_l = dot_product(normal, light_source);
+        GLfloat n_dot_h = dot_product(normal, h);
+        
+        GLfloat red = base_color[0] * (amb[0] + (diff[0] * n_dot_l)) + (spec[0] * base_color[0] * pow(n_dot_h, m));
+        colors.push_back(red);
+        
+        GLfloat green = base_color[1] * (amb[1] + (diff[1] * n_dot_l)) + (spec[1] * base_color[1] * pow(n_dot_h, m));
+        colors.push_back(green);
+        
+        GLfloat blue = base_color[2] * (amb[2] + (diff[2] * n_dot_l)) + (spec[2] * base_color[2] * pow(n_dot_h, m));
+        colors.push_back(blue);
+    }
     
     object_model.set_colors(colors);
     return object_model;
+}
+
+vector<GLfloat> timesSix(vector<GLfloat> v) {
+    return squish_vector({v, v, v, v, v, v});
 }
 
 void print_matrix(vector<GLfloat> A) {
@@ -332,10 +389,6 @@ void print_matrix(vector<GLfloat> A) {
         }
     }
     cout << " ]" << "\n";
-}
-
-vector<GLfloat> timesSix(vector<GLfloat> v) {
-    return squish_vector({v, v, v, v, v, v});
 }
 
 
@@ -374,136 +427,275 @@ void init_camera() {
     gluLookAt(2.0, 6.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
-vector<GLfloat> build_rug() {
-    vector<GLfloat> rug = mat_mult(scaling_matrix(3.5, 0.1, 2), build_cube());
-    vector<vector<GLfloat>> result = {rug};
-    return squish_vector(result);
+ObjectModel build_rug() {
+    ObjectModel rug_object;
+    
+    vector<vector<GLfloat>> rug;
+    rug.push_back(to_cartesian_coord(mat_mult(scaling_matrix(3.5, 0.1, 2), build_cube())));
+    rug_object.set_points(squish_vector(rug));
+    
+    vector<GLfloat> points = rug_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    rug_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.788, 0.764, 0.745)));
+    rug_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(rug_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> color_rug() {
-    vector<GLfloat> rug = timesSix(init_base_color(0.788, 0.764, 0.745));
-    vector<vector<GLfloat>> result = {rug};
-    return squish_vector(result);
+ObjectModel build_bed() {
+    ObjectModel bed_obect;
+    
+    vector<vector<GLfloat>> bed;
+    bed.push_back(to_cartesian_coord(mat_mult(translation_matrix(0, 0.5, -0.9), mat_mult(scaling_matrix(1.5, 1, 2), build_cube()))));
+    bed.push_back(to_cartesian_coord(mat_mult(translation_matrix(0, 1, -2), mat_mult(scaling_matrix(1.5, 2, 0.2), build_cube()))));
+    bed_obect.set_points(squish_vector(bed));
+    
+    vector<GLfloat> points = bed_obect.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    bed_obect.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
+    colors.push_back(timesSix(init_base_color(0.658, 0.462, 0.325)));
+    bed_obect.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(bed_obect, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> build_bed() {
-    vector<GLfloat> bed_body = mat_mult(translation_matrix(0, 0.5, -0.9), mat_mult(scaling_matrix(1.5, 1, 2), build_cube()));
-    vector<GLfloat> bed_frame = mat_mult(translation_matrix(0, 1, -2), mat_mult(scaling_matrix(1.5, 2, 0.2), build_cube()));
-    vector<vector<GLfloat>> result = {bed_body, bed_frame};
-    return squish_vector(result);
+ObjectModel build_bed_pillows() {
+    ObjectModel bed_pillows_object;
+    
+    vector<vector<GLfloat>> bed_pillows;
+    bed_pillows.push_back(to_cartesian_coord(mat_mult(translation_matrix(0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())))));
+    bed_pillows.push_back(to_cartesian_coord(mat_mult(translation_matrix(-0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())))));
+    bed_pillows_object.set_points(squish_vector(bed_pillows));
+    
+    vector<GLfloat> points = bed_pillows_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    bed_pillows_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
+    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
+    bed_pillows_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(bed_pillows_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> color_bed() {
-    vector<GLfloat> bed_body = timesSix(init_base_color(0.658, 0.462, 0.325));
-    vector<GLfloat> bed_frame = timesSix(init_base_color(0.658, 0.462, 0.325));
-    vector<vector<GLfloat>> result = {bed_body, bed_frame};
-    return squish_vector(result);
+ObjectModel build_floor_pillow() {
+    ObjectModel floor_pillow_object;
+    
+    vector<vector<GLfloat>> floor_pillow;
+    floor_pillow.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.1, 0.05, 0.3), mat_mult(rotation_matrix_y(20), mat_mult(scaling_matrix(0.5, 0.1, 0.5), build_cube())))));
+    floor_pillow_object.set_points(squish_vector(floor_pillow));
+    
+    vector<GLfloat> points = floor_pillow_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    floor_pillow_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.909, 0.898, 0.909)));
+    floor_pillow_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(floor_pillow_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> build_bed_pillows() {
-    vector<GLfloat> left_pillow = mat_mult(translation_matrix(0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())));
-    vector<GLfloat> right_pillow = mat_mult(translation_matrix(-0.325, 1.25, -1.75), mat_mult(rotation_matrix_x(-20), mat_mult(scaling_matrix(0.5, 0.5, 0.1), build_cube())));
-    vector<vector<GLfloat>> result = {left_pillow, right_pillow};
-    return squish_vector(result);
+ObjectModel build_cabinet() {
+    ObjectModel cabinet_object;
+    
+    vector<vector<GLfloat>> cabinet;
+    cabinet.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.6, 0.875, -1.4), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.5, 1.4, 1) , build_cube())))));
+    cabinet_object.set_points(squish_vector(cabinet));
+    
+    vector<GLfloat> points = cabinet_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    cabinet_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.749, 0.698, 0.631)));
+    cabinet_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(cabinet_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> color_bed_pillows() {
-    vector<GLfloat> left_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
-    vector<GLfloat> right_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
-    vector<vector<GLfloat>> result = {left_pillow, right_pillow};
-    return squish_vector(result);
-}
-
-vector<GLfloat> build_floor_pillow() {
-    vector<GLfloat> floor_pillow = mat_mult(translation_matrix(1.1, 0.05, 0.3), mat_mult(rotation_matrix_y(20), mat_mult(scaling_matrix(0.5, 0.1, 0.5), build_cube())));
-    vector<vector<GLfloat>> result = {floor_pillow};
-    return squish_vector(result);
-}
-
-vector<GLfloat> color_floor_pillow() {
-    vector<GLfloat> floor_pillow = timesSix(init_base_color(0.909, 0.898, 0.909));
-    vector<vector<GLfloat>> result = {floor_pillow};
-    return squish_vector(result);
-}
-
-vector<GLfloat> build_cabinet() {
-    vector<GLfloat> cabinet = mat_mult(translation_matrix(-1.6, 0.875, -1.4), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.5, 1.4, 1) , build_cube())));
-    vector<vector<GLfloat>> result = {cabinet};
-    return squish_vector(result);
-}
-
-vector<GLfloat> color_cabinet() {
-    vector<GLfloat> cabinet = timesSix(init_base_color(0.749, 0.698, 0.631));
-    vector<vector<GLfloat>> result = {cabinet};
-    return squish_vector(result);
-}
-
-vector<GLfloat> build_cabinet_plant() {
+ObjectModel build_cabinet_plant() {
+    ObjectModel cabinet_plant_object;
+    
     float rotation_angle = 12.5;
-    vector<GLfloat> plant_vase = mat_mult(translation_matrix(-1.35, 1.8, -1.5), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()));
-    vector<GLfloat> plant_stem1 = mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))));
-    vector<GLfloat> plant_stem2 = mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<GLfloat> plant_stem3 = mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<GLfloat> plant_stem4 = mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
-    return squish_vector(plant);
+    vector<vector<GLfloat>> cabinet_plant;
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.35, 1.8, -1.5), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    
+    vector<GLfloat> points = cabinet_plant_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    cabinet_plant_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.643, 0.631, 0.662)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    cabinet_plant_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(cabinet_plant_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> color_cabinet_plant() {
-    vector<GLfloat> plant_vase = timesSix(init_base_color(0.643, 0.631, 0.662));
-    vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem4 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
-    return squish_vector(plant);
+ObjectModel build_floor_pile() {
+    ObjectModel floor_pile_object;
+    
+    vector<vector<GLfloat>> floor_pile;
+    floor_pile.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.2, 0.15, -1.4), mat_mult(scaling_matrix(0.5, 0.3, 0.5), build_cube()))));
+    floor_pile_object.set_points(squish_vector(floor_pile));
+    
+    vector<GLfloat> points = floor_pile_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    floor_pile_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.549, 0.533, 0.517)));
+    floor_pile_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(floor_pile_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> build_floor_pile() {
-    vector<GLfloat> floor_pile = mat_mult(translation_matrix(1.2, 0.15, -1.4), mat_mult(scaling_matrix(0.5, 0.3, 0.5), build_cube()));
-    vector<vector<GLfloat>> result = {floor_pile};
-    return squish_vector(result);
-}
-
-vector<GLfloat> color_floor_pile() {
-    vector<GLfloat> floor_pile = timesSix(init_base_color(0.549, 0.533, 0.517));
-    vector<vector<GLfloat>> result = {floor_pile};
-    return squish_vector(result);
-}
-
-vector<GLfloat> build_floor_pile_plant() {
+ObjectModel build_floor_pile_plant() {
+    ObjectModel floor_pile_plant_object;
+    
     float rotation_angle = 12.5;
-    vector<GLfloat> plant_vase = mat_mult(translation_matrix(1.2, 0.5, -1.4), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()));
-    vector<GLfloat> plant_stem1 = mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))));
-    vector<GLfloat> plant_stem2 = mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<GLfloat> plant_stem3 = mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<GLfloat> plant_stem4 = mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))));
-    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
-    return squish_vector(plant);
+    vector<vector<GLfloat>> floor_pile_plant;
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.2, 0.5, -1.4), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant_object.set_points(squish_vector(floor_pile_plant));
+    
+    vector<GLfloat> points = floor_pile_plant_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    floor_pile_plant_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0.643, 0.631, 0.662)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    colors.push_back(timesSix(init_base_color(0.098, 0.8, 0.211)));
+    floor_pile_plant_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(floor_pile_plant_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
 }
 
-vector<GLfloat> color_floor_plant() {
-    vector<GLfloat> plant_vase = timesSix(init_base_color(0.643, 0.631, 0.662));
-    vector<GLfloat> plant_stem1 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem2 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem3 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<GLfloat> plant_stem4 = timesSix(init_base_color(0.098, 0.8, 0.211));
-    vector<vector<GLfloat>> plant = {plant_vase, plant_stem1, plant_stem2, plant_stem3, plant_stem4};
-    return squish_vector(plant);
+// TODO: delete when done testing
+ObjectModel build_cube_object() {
+    ObjectModel cube_object;
+    
+    vector<vector<GLfloat>> cube;
+    cube.push_back(to_cartesian_coord(build_cube()));
+    cube_object.set_points(squish_vector(cube));
+    
+    vector<GLfloat> points = cube_object.get_points();
+    vector<GLfloat> normals = generate_normals(points);
+    cube_object.set_normals(normals);
+    
+    vector<vector<GLfloat>> colors;
+    colors.push_back(timesSix(init_base_color(0, 0.4, 0.8)));
+    cube_object.set_base_colors(squish_vector(colors));
+    
+    return apply_shading(cube_object, LIGHT_SOURCE, CAMERA, AMB, DIFF, SPEC, M);
+    
 }
 
 // Construct the scene using objects built from cubes/prisms
 vector<GLfloat> init_scene() {
-    vector<vector<GLfloat>> unsquished_scene = {build_rug(), build_bed(), build_bed_pillows(), build_floor_pillow(), build_cabinet(), build_cabinet_plant(), build_floor_pile(), build_floor_pile_plant()};
-    vector<GLfloat> scene = squish_vector(unsquished_scene);
-    return scene;
+    vector<vector<GLfloat>> scene_points;
+    
+//    ObjectModel rug = build_rug();
+//    vector<GLfloat> rug_points = rug.get_points();
+//    scene_points.push_back(rug_points);
+//
+//    ObjectModel bed = build_bed();
+//    vector<GLfloat> bed_points = bed.get_points();
+//    scene_points.push_back(bed_points);
+//
+//    ObjectModel bed_pillows = build_bed_pillows();
+//    vector<GLfloat> bed_pillows_points = bed_pillows.get_points();
+//    scene_points.push_back(bed_pillows_points);
+//
+//    ObjectModel floor_pillow = build_floor_pillow();
+//    vector<GLfloat> floor_pillow_points = floor_pillow.get_points();
+//    scene_points.push_back(floor_pillow_points);
+//
+//    ObjectModel cabinet = build_cabinet();
+//    vector<GLfloat> cabinet_points = cabinet.get_points();
+//    scene_points.push_back(cabinet_points);
+//
+//    ObjectModel cabinet_plant = build_cabinet_plant();
+//    vector<GLfloat> cabinet_plant_points = cabinet_plant.get_points();
+//    scene_points.push_back(cabinet_plant_points);
+//
+//    ObjectModel floor_pile = build_floor_pile();
+//    vector<GLfloat> floor_pile_points = floor_pile.get_points();
+//    scene_points.push_back(floor_pile_points);
+//
+//    ObjectModel floor_pile_plant = build_floor_pile_plant();
+//    vector<GLfloat> floor_pile_plant_points = floor_pile_plant.get_points();
+//    scene_points.push_back(floor_pile_plant_points);
+    
+    ObjectModel cube = build_cube_object();
+    vector<GLfloat> cube_points = cube.get_points();
+    scene_points.push_back(cube_points);
+    
+    return squish_vector(scene_points);
 }
 
 // Construct the color mapping of the scene
 vector<GLfloat> init_color() {
-    vector<vector<GLfloat>> unsquished_colors = {color_rug(), color_bed(), color_bed_pillows(), color_floor_pillow(), color_cabinet(), color_cabinet_plant(), color_floor_pile(), color_floor_plant()};
-    vector<GLfloat> colors = squish_vector(unsquished_colors);
-    return colors;
+    vector<vector<GLfloat>> scene_colors;
+    
+//    ObjectModel rug = build_rug();
+//    vector<GLfloat> rug_colors = rug.get_colors();
+//    scene_colors.push_back(rug_colors);
+//
+//    ObjectModel bed = build_bed();
+//    vector<GLfloat> bed_color = bed.get_colors();
+//    scene_colors.push_back(bed_color);
+//
+//    ObjectModel bed_pillows = build_bed_pillows();
+//    vector<GLfloat> bed_pillows_colors = bed_pillows.get_colors();
+//    scene_colors.push_back(bed_pillows_colors);
+//
+//    ObjectModel floor_pillow = build_floor_pillow();
+//    vector<GLfloat> floor_pillow_colors = floor_pillow.get_colors();
+//    scene_colors.push_back(floor_pillow_colors);
+//
+//    ObjectModel cabinet = build_cabinet();
+//    vector<GLfloat> cabinet_colors = cabinet.get_colors();
+//    scene_colors.push_back(cabinet_colors);
+//
+//    ObjectModel cabinet_plant = build_cabinet_plant();
+//    vector<GLfloat> cabinet_plant_colors = cabinet_plant.get_colors();
+//    scene_colors.push_back(cabinet_plant_colors);
+//
+//    ObjectModel floor_pile = build_floor_pile();
+//    vector<GLfloat> floor_pile_colors = floor_pile.get_colors();
+//    scene_colors.push_back(floor_pile_colors);
+//
+//    ObjectModel floor_pile_plant = build_floor_pile_plant();
+//    vector<GLfloat> floor_pile_plant_colors = floor_pile_plant.get_colors();
+//    scene_colors.push_back(floor_pile_plant_colors);
+
+    ObjectModel cube = build_cube_object();
+    vector<GLfloat> cube_colors = cube.get_colors();
+    scene_colors.push_back(cube_colors);
+    
+    return squish_vector(scene_colors);
 }
 
 
@@ -513,9 +705,6 @@ void display_func() {
     // Initialize your scene at every iteration
     SCENE.set_points(init_scene());
     SCENE.set_colors(init_color());
-    SCENE.set_points(to_cartesian_coord(SCENE.get_points()));
-    // TODO: Apply shading to the scene
-    
     
     // Rotate the scene using the rotation matrix
     SCENE.set_points(to_cartesian_coord(mat_mult(rotation_matrix_y(THETA), to_homogeneous_coord(SCENE.get_points()))));
