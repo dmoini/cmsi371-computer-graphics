@@ -158,8 +158,8 @@ vector<GLfloat> rotation_matrix_x (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_x = {
         1.0, 0.0, 0.0, 0.0,
-        0.0, (float)(cos(theta)), (float)(-sin(theta)), 0.0,
-        0.0, (float)(sin(theta)), (float)(cos(theta)), 0.0,
+        0.0, (float)(cos(radians)), (float)(-sin(radians)), 0.0,
+        0.0, (float)(sin(radians)), (float)(cos(radians)), 0.0,
         0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_x;
@@ -170,9 +170,9 @@ vector<GLfloat> rotation_matrix_x (float theta) {
 vector<GLfloat> rotation_matrix_y (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_y = {
-        (float)cos(theta), 0.0, (float)sin(theta), 0.0,
+        (float)cos(radians), 0.0, (float)sin(radians), 0.0,
         0.0, 1.0, 0.0, 0.0,
-        (float)-sin(theta), 0.0, (float)cos(theta), 0.0,
+        (float)-sin(radians), 0.0, (float)cos(radians), 0.0,
         0.0, 0.0, 0.0, 1.0
     };
     return rotate_mat_y;
@@ -183,8 +183,8 @@ vector<GLfloat> rotation_matrix_y (float theta) {
 vector<GLfloat> rotation_matrix_z (float theta) {
     float radians = deg2rad(theta);
     vector<GLfloat> rotate_mat_z = {
-        (float)cos(theta), (float)-sin(theta), 0.0, 0.0,
-        (float)sin(theta), (float)cos(theta), 0.0, 0.0,
+        (float)cos(radians), (float)-sin(radians), 0.0, 0.0,
+        (float)sin(radians), (float)cos(radians), 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     };
@@ -226,11 +226,11 @@ vector<GLfloat> build_cube() {
     vector<GLfloat> a0 = to_homogeneous_coord(init_plane());
     // Construct 6 planes of the cube
     vector<GLfloat> a1 = mat_mult(translation_matrix(0.0,  0.0,  0.5), a0);
-    vector<GLfloat> a2 = mat_mult(translation_matrix(0.0,  0.0, -0.5), mat_mult(rotation_matrix_y(deg2rad(180)), a0));
-    vector<GLfloat> a3 = mat_mult(translation_matrix(-0.5, 0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(-90)), a0));
-    vector<GLfloat> a4 = mat_mult(translation_matrix(0.5,  0.0,  0.0), mat_mult(rotation_matrix_y(deg2rad(90)), a0));
-    vector<GLfloat> a5 = mat_mult(translation_matrix(0.0,  0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(-90)), a0));
-    vector<GLfloat> a6 = mat_mult(translation_matrix(0.0, -0.5,  0.0), mat_mult(rotation_matrix_x(deg2rad(90)), a0));
+    vector<GLfloat> a2 = mat_mult(translation_matrix(0.0,  0.0, -0.5), mat_mult(rotation_matrix_y(180), a0));
+    vector<GLfloat> a3 = mat_mult(translation_matrix(-0.5, 0.0,  0.0), mat_mult(rotation_matrix_y(-90), a0));
+    vector<GLfloat> a4 = mat_mult(translation_matrix(0.5,  0.0,  0.0), mat_mult(rotation_matrix_y(90), a0));
+    vector<GLfloat> a5 = mat_mult(translation_matrix(0.0,  0.5,  0.0), mat_mult(rotation_matrix_x(-90), a0));
+    vector<GLfloat> a6 = mat_mult(translation_matrix(0.0, -0.5,  0.0), mat_mult(rotation_matrix_x(90), a0));
     
     result.insert(std::end(result), std::begin(a1), std::end(a1));
     result.insert(std::end(result), std::begin(a2), std::end(a2));
@@ -531,10 +531,10 @@ ObjectModel build_cabinet_plant() {
     float rotation_angle = 12.5;
     vector<vector<GLfloat>> cabinet_plant;
     cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.35, 1.8, -1.5), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.30, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    cabinet_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(-1.40, 2.1, -1.55), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
     cabinet_plant_object.set_points(squish_vector(cabinet_plant));
     
     vector<GLfloat> points = cabinet_plant_object.get_points();
@@ -576,10 +576,10 @@ ObjectModel build_floor_pile_plant() {
     float rotation_angle = 12.5;
     vector<vector<GLfloat>> floor_pile_plant;
     floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.2, 0.5, -1.4), mat_mult(scaling_matrix(0.18, 0.4, 0.18) , build_cube()))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
-    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04), build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.15, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.35), mat_mult(rotation_matrix_x(rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
+    floor_pile_plant.push_back(to_cartesian_coord(mat_mult(translation_matrix(1.25, 0.8, -1.45), mat_mult(rotation_matrix_x(-rotation_angle), mat_mult(rotation_matrix_z(-rotation_angle), mat_mult(rotation_matrix_y(-70), mat_mult(scaling_matrix(0.04, 0.3, 0.04) , build_cube())))))));
     floor_pile_plant_object.set_points(squish_vector(floor_pile_plant));
     
     vector<GLfloat> points = floor_pile_plant_object.get_points();
@@ -712,7 +712,7 @@ void display_func() {
 }
 
 void idle_func() {
-    THETA = THETA + 0.003;
+    THETA = THETA + 0.3;
     display_func();
 }
 
